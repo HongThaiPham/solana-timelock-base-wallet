@@ -7,8 +7,14 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import { Environment, ParaProvider } from '@getpara/react-sdk';
 import '@getpara/react-sdk/styles.css';
-
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 30,
+    },
+  },
+});
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
@@ -18,7 +24,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           apiKey: process.env.NEXT_PUBLIC_PARA_API_KEY || '',
         }}
         config={{
-          appName: process.env.NEXT_PUBLIC_PARA_APP_NAME || '',
+          appName:
+            process.env.NEXT_PUBLIC_PARA_APP_NAME || 'Solana Time-base wallet',
         }}
         externalWalletConfig={{
           wallets: ['PHANTOM', 'BACKPACK', 'SOLFLARE'],
@@ -29,6 +36,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                 'https://devnet.api.solana.com',
               chain: 'devnet',
               appIdentity: {
+                name:
+                  process.env.NEXT_PUBLIC_PARA_APP_NAME ||
+                  'Solana Time-base wallet',
                 uri:
                   typeof window !== 'undefined'
                     ? `${window.location.protocol}//${window.location.host}`
@@ -42,7 +52,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           disableEmailLogin: false,
           authLayout: ['AUTH:CONDENSED', 'EXTERNAL:FULL'],
           onRampTestMode: true,
-          logo: 'https://solana.com/src/img/branding/solanaLogoMark.svg',
+          logo: '/sol.svg',
           theme: {
             foregroundColor: '#9945FF',
             backgroundColor: '',
@@ -64,7 +74,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           <Toaster richColors />
         </ThemeProvider>
       </ParaProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   );
 }
