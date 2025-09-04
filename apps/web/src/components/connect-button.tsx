@@ -25,11 +25,17 @@ export function ConnectButton({
   const { isConnected } = useAccount();
   const { logout, isPending } = useLogout();
 
+  const handleOpen = (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    openModal();
+  };
+
   if (!isConnected) {
     return (
       <Button
+        role='button'
         variant='outline'
-        onClick={() => openModal()}
+        onClick={handleOpen}
         className={cn('h-full', className)}
         disabled={isPending}
       >
@@ -53,9 +59,7 @@ export function ConnectButton({
       <DropdownMenuContent>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => openModal()}>
-          Manage wallet
-        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleOpen}>Manage wallet</DropdownMenuItem>
         <DropdownMenuItem
           onClick={() =>
             logout({

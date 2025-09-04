@@ -20,7 +20,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <ParaProvider
         paraClientConfig={{
-          env: Environment.DEV,
+          env: Environment.BETA,
           apiKey: process.env.NEXT_PUBLIC_PARA_API_KEY || '',
         }}
         config={{
@@ -28,6 +28,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             process.env.NEXT_PUBLIC_PARA_APP_NAME || 'Solana Time-base wallet',
         }}
         externalWalletConfig={{
+          includeWalletVerification: true,
           wallets: ['PHANTOM', 'BACKPACK', 'SOLFLARE'],
           solanaConnector: {
             config: {
@@ -74,7 +75,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           <Toaster richColors />
         </ThemeProvider>
       </ParaProvider>
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }
