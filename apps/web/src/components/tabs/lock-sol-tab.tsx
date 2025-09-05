@@ -150,6 +150,7 @@ const LockSolTab = () => {
                             step='0.001'
                             className='border-none shadow-none p-0 text-lg font-medium focus-visible:ring-0 focus-visible:ring-offset-0'
                             {...field}
+                            value={field.value || ''}
                             onChange={(e) =>
                               field.onChange(parseFloat(e.target.value) || 0)
                             }

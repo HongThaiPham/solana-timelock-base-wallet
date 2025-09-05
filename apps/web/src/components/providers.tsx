@@ -2,8 +2,8 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from './theme-provider';
-import { Toaster } from './ui/sonner';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import toast, { ToastBar, Toaster } from 'react-hot-toast';
 
 import { Environment, ParaProvider } from '@getpara/react-sdk';
 import '@getpara/react-sdk/styles.css';
@@ -72,7 +72,21 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           disableTransitionOnChange
         >
           {children}
-          <Toaster richColors />
+          <Toaster toasterId='transaction'>
+            {(t) => (
+              <ToastBar toast={t}>
+                {({ icon, message }) => (
+                  <>
+                    {icon}
+                    {message}
+                    {t.type !== 'loading' && (
+                      <button onClick={() => toast.dismiss(t.id)}>X</button>
+                    )}
+                  </>
+                )}
+              </ToastBar>
+            )}
+          </Toaster>
         </ThemeProvider>
       </ParaProvider>
       <ReactQueryDevtools initialIsOpen={false} />

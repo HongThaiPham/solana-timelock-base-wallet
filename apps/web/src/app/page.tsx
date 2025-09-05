@@ -1,18 +1,8 @@
-'use client';
-
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import InitVaultTabs from '@/components/tabs/init-vault-tab';
 import { Clock10Icon } from 'lucide-react';
 import HowItWorks from '@/components/how-it-works';
+import TimeLockList from '@/components/time-lock-list';
 
 export default function Home() {
   return (
@@ -31,27 +21,8 @@ export default function Home() {
         <div className='col-span-2'>
           <InitVaultTabs />
         </div>
-        <div>
-          <section className='mb-12'>
-            <h2 className='text-2xl font-bold mb-4 flex items-center gap-2'>
-              <Clock10Icon />
-              Your Time Locks
-            </h2>
-            <p className='text-muted-foreground mb-6'>
-              View and manage your Solana time-based locks wallets
-            </p>
-            <Card>
-              <CardContent className='py-8 text-center'>
-                <p className='text-muted-foreground'>
-                  No time locks created yet
-                </p>
-                <p className='text-sm text-muted-foreground mt-2'>
-                  Create your first SOL time lock to get started
-                </p>
-              </CardContent>
-            </Card>
-          </section>
-        </div>
+
+        <TimeLockList />
       </div>
     </div>
   );
