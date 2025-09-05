@@ -6,10 +6,22 @@ import {
   LockIcon,
   UnlockIcon,
   ClockIcon,
+  DownloadIcon,
+  Loader2,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
 import { isSome, type Account } from '@solana/kit';
 import type { Vault } from '@repo/program-client';
+import useWithdrawSolLock from '@/hooks/useWithdrawSolLock';
+import {
+  formatAmount,
+  formatTimestamp,
+  isLocked,
+  calculateTimeLeft,
+} from '@/lib/utils';
+import toast from 'react-hot-toast';
+import Link from 'next/link';
 
 interface TimeLockItemProps {
   item: Account<Vault>;
@@ -19,47 +31,22 @@ interface TimeLockItemProps {
 const TimeLockItem: React.FC<TimeLockItemProps> = ({ item, index }) => {
   const [timeLeft, setTimeLeft] = useState<string>('');
   const vaultData = item.data;
+  const withdrawSolLock = useWithdrawSolLock(item.address);
 
-  const formatAmount = (amount: bigint, decimals: number = 9) => {
-    const divisor = BigInt(10 ** decimals);
-    const whole = amount / divisor;
-    const fraction = amount % divisor;
-    return `${whole.toString()}.${fraction.toString().padStart(decimals, '0').replace(/0+$/, '') || '0'}`;
-  };
+  const handleWithdraw = async () => {
+    const signature = await withdrawSolLock.mutateAsync();
 
-  const formatTimestamp = (timestamp: bigint) => {
-    const date = new Date(Number(timestamp) * 1000);
-    return date.toLocaleString();
-  };
-
-  const isLocked = (unlockTimestamp: bigint) => {
-    const currentTime = Math.floor(Date.now() / 1000);
-    return Number(unlockTimestamp) > currentTime;
-  };
-
-  const calculateTimeLeft = (unlockTimestamp: bigint) => {
-    const currentTime = Math.floor(Date.now() / 1000);
-    const unlockTime = Number(unlockTimestamp);
-    const difference = unlockTime - currentTime;
-
-    if (difference <= 0) {
-      return '';
-    }
-
-    const days = Math.floor(difference / (24 * 60 * 60));
-    const hours = Math.floor((difference % (24 * 60 * 60)) / (60 * 60));
-    const minutes = Math.floor((difference % (60 * 60)) / 60);
-    const seconds = difference % 60;
-
-    if (days > 0) {
-      return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-    } else if (hours > 0) {
-      return `${hours}h ${minutes}m ${seconds}s`;
-    } else if (minutes > 0) {
-      return `${minutes}m ${seconds}s`;
-    } else {
-      return `${seconds}s`;
-    }
+    toast.custom((t) => (
+      <div
+        className={`bg-white px-6 py-4 shadow-md rounded-full ${
+          t.visible ? 'animate-custom-enter' : 'animate-custom-leave'
+        }`}
+      >
+        <Link href={`https://explorer.solana.com/tx/${signature}`}>
+          View Transaction
+        </Link>
+      </div>
+    ));
   };
 
   useEffect(() => {
@@ -90,9 +77,9 @@ const TimeLockItem: React.FC<TimeLockItemProps> = ({ item, index }) => {
             }`}
           >
             {isVaultLocked ? (
-              <LockIcon className='h-3 w-3' />
+              <LockIcon className='size-3' />
             ) : (
-              <UnlockIcon className='h-3 w-3' />
+              <UnlockIcon className='size-3' />
             )}
             {isVaultLocked ? 'Locked' : 'Unlocked'}
           </div>
@@ -100,14 +87,14 @@ const TimeLockItem: React.FC<TimeLockItemProps> = ({ item, index }) => {
       </CardHeader>
       <CardContent className='space-y-3'>
         <div className='flex items-center gap-2 text-sm'>
-          <CoinsIcon className='h-4 w-4 text-muted-foreground' />
+          <CoinsIcon className='size-4 text-muted-foreground' />
           <span className='font-medium'>
             {formatAmount(vaultData.amount)} {solOrSpl}
           </span>
         </div>
 
         <div className='flex items-center gap-2 text-sm'>
-          <CalendarIcon className='h-4 w-4 text-muted-foreground' />
+          <CalendarIcon className='size-4 text-muted-foreground' />
           <span>
             <span className='text-muted-foreground'>Unlock: </span>
             {formatTimestamp(vaultData.unlockTimestamp)}
@@ -116,13 +103,31 @@ const TimeLockItem: React.FC<TimeLockItemProps> = ({ item, index }) => {
 
         {isVaultLocked && timeLeft && (
           <div className='flex items-center gap-2 text-sm'>
-            <ClockIcon className='h-4 w-4 text-muted-foreground' />
+            <ClockIcon className='size-4 text-muted-foreground' />
             <span>
               <span className='text-muted-foreground'>Time left: </span>
               <span className='font-mono font-medium text-orange-600 dark:text-orange-400'>
                 {timeLeft}
               </span>
             </span>
+          </div>
+        )}
+
+        {!isVaultLocked && !isSome(vaultData.mint) && (
+          <div className='pt-3 border-t'>
+            <Button
+              onClick={handleWithdraw}
+              disabled={withdrawSolLock.isPending}
+              className='w-full'
+              size='sm'
+            >
+              {withdrawSolLock.isPending ? (
+                <Loader2 className='size-4 animate-spin' />
+              ) : (
+                <DownloadIcon className='size-4' />
+              )}
+              {withdrawSolLock.isPending ? 'Withdrawing...' : 'Withdraw SOL'}
+            </Button>
           </div>
         )}
       </CardContent>

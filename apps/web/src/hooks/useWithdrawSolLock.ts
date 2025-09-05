@@ -1,38 +1,38 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { getInitializeSolLockInstructionAsync } from '@repo/program-client';
-import { useParaSigner } from './useParaSigner';
-import { compileTransaction } from '@solana/transactions';
+import { getWithdrawSolLockInstruction } from '@repo/program-client';
+import { address } from '@solana/addresses';
+import toast from 'react-hot-toast';
 import {
   appendTransactionMessageInstruction,
+  compileTransaction,
   createTransactionMessage,
+  getBase58Decoder,
   pipe,
   setTransactionMessageFeePayer,
   setTransactionMessageLifetimeUsingBlockhash,
-  getBase58Decoder,
 } from '@solana/kit';
-import toast from 'react-hot-toast';
-
-const useInitSolLock = () => {
+import { useParaSigner } from './useParaSigner';
+const useWithdrawSolLock = (vaultAddress: string) => {
   const { signer, rpc } = useParaSigner();
   const base58Encoder = getBase58Decoder();
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationKey: ['init-sol-lock'],
-    mutationFn: async (params: { amount: bigint; unlockTime: bigint }) => {
+    mutationKey: ['withdraw-sol-lock', vaultAddress],
+    mutationFn: async () => {
       if (!signer) {
         return;
       }
-      console.log('Initiating SOL lock with params:', params);
+      console.log('Withdrawing SOL lock with params:', vaultAddress);
+      const ix = await getWithdrawSolLockInstruction({
+        vault: address(vaultAddress),
+        signer,
+      });
 
       return toast.promise(
         async () => {
           const response = await rpc.getLatestBlockhash().send();
           const { blockhash, lastValidBlockHeight } = response.value;
-          const ix = await getInitializeSolLockInstructionAsync({
-            amount: params.amount,
-            unlockTimestamp: params.unlockTime,
-            signer,
-          });
 
           const message = pipe(
             createTransactionMessage({ version: 0 }),
@@ -50,8 +50,7 @@ const useInitSolLock = () => {
           const signatures = await signer.signAndSendTransactions([tx]);
 
           const signature = base58Encoder.decode(signatures[0]);
-          console.log('Initiating SOL lock signature (bs58):', signature);
-
+          console.log('Withdrawing SOL lock signature (bs58):', signature);
           await queryClient.invalidateQueries({
             queryKey: ['timelock-accounts'],
           });
@@ -59,9 +58,9 @@ const useInitSolLock = () => {
           return signature;
         },
         {
-          loading: 'Initiating SOL lock...',
-          success: `SOL locked successfully!`,
-          error: 'Error when locking SOL',
+          loading: 'Withdrawing SOL lock...',
+          success: `SOL withdrawn successfully!`,
+          error: 'Error when withdrawing SOL',
         },
         {
           toasterId: 'transaction',
@@ -70,4 +69,5 @@ const useInitSolLock = () => {
     },
   });
 };
-export default useInitSolLock;
+
+export default useWithdrawSolLock;

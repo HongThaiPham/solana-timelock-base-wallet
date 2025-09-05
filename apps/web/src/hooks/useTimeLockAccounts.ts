@@ -8,7 +8,6 @@ import { useSolana } from './useSolana';
 import bs58 from 'bs58';
 import { useWallet } from '@getpara/react-sdk';
 import type { Base58EncodedBytes } from '@solana/kit';
-import { getAddressEncoder } from '@solana/kit';
 const useTimeLockAccounts = () => {
   const { rpc } = useSolana();
   const { data: wallet } = useWallet();
@@ -22,7 +21,6 @@ const useTimeLockAccounts = () => {
           commitment: 'finalized',
           filters: [
             {
-              // compare first 8 bytes to vault discriminator
               memcmp: {
                 offset: BigInt(0),
                 bytes: bs58.encode(
@@ -32,7 +30,6 @@ const useTimeLockAccounts = () => {
               },
             },
             {
-              // compare next 32 bytes to owner public key
               memcmp: {
                 offset: BigInt(8),
                 bytes: wallet.address as unknown as Base58EncodedBytes,

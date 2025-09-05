@@ -1,42 +1,40 @@
 'use client';
 import useTimeLockAccounts from '@/hooks/useTimeLockAccounts';
 import { Clock10Icon, LockIcon, UnlockIcon } from 'lucide-react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Card, CardContent } from './ui/card';
 import { Skeleton } from './ui/skeleton';
 import { ScrollArea } from './ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 import TimeLockItem from './time-lock-item';
+import { isLocked } from '@/lib/utils';
 
 const TimeLockList = () => {
   const { data, isPending } = useTimeLockAccounts();
-  console.log('timeLockAccounts', data);
-
-  const isLocked = (unlockTimestamp: bigint) => {
-    const currentTime = Math.floor(Date.now() / 1000);
-    return Number(unlockTimestamp) > currentTime;
-  };
 
   // Separate data into 2 distinct lists
-  const separateTimeLockItems = (items: typeof data) => {
-    if (!items) return { lockedItems: [], unlockedItems: [] };
+  const separateTimeLockItems = useCallback(
+    (items: typeof data) => {
+      if (!items) return { lockedItems: [], unlockedItems: [] };
 
-    const lockedItems = items
-      .filter((item) => isLocked(item.data.unlockTimestamp))
-      .sort(
-        (a, b) =>
-          Number(a.data.unlockTimestamp) - Number(b.data.unlockTimestamp)
-      );
+      const lockedItems = items
+        .filter((item) => isLocked(item.data.unlockTimestamp))
+        .sort(
+          (a, b) =>
+            Number(a.data.unlockTimestamp) - Number(b.data.unlockTimestamp)
+        );
 
-    const unlockedItems = items
-      .filter((item) => !isLocked(item.data.unlockTimestamp))
-      .sort(
-        (a, b) =>
-          Number(a.data.unlockTimestamp) - Number(b.data.unlockTimestamp)
-      );
+      const unlockedItems = items
+        .filter((item) => !isLocked(item.data.unlockTimestamp))
+        .sort(
+          (a, b) =>
+            Number(a.data.unlockTimestamp) - Number(b.data.unlockTimestamp)
+        );
 
-    return { lockedItems, unlockedItems };
-  };
+      return { lockedItems, unlockedItems };
+    },
+    [data]
+  );
 
   const { lockedItems, unlockedItems } = separateTimeLockItems(data);
   const totalItems = lockedItems.length + unlockedItems.length;
