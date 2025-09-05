@@ -28,7 +28,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             process.env.NEXT_PUBLIC_PARA_APP_NAME || 'Solana Time-base wallet',
         }}
         externalWalletConfig={{
-          includeWalletVerification: true,
+          // includeWalletVerification: true,
           wallets: ['PHANTOM', 'BACKPACK', 'SOLFLARE'],
           solanaConnector: {
             config: {

@@ -1,10 +1,9 @@
-import { useSignTransaction } from '@getpara/react-sdk';
 import { useMutation } from '@tanstack/react-query';
 import { getInitializeSolLockInstructionAsync } from '@repo/program-client';
 import { useParaSigner } from './useParaSigner';
 import {
   compileTransaction,
-  getBase64EncodedWireTransaction,
+  getSignatureFromTransaction,
 } from '@solana/transactions';
 import {
   appendTransactionMessageInstruction,
@@ -46,8 +45,12 @@ const useInitSolLock = () => {
       const tx = await compileTransaction(message);
 
       const signatures = await signer.signAndSendTransactions([tx]);
-      const signature = signatures[0];
-      console.log('Transaction signature:', signature.toString());
+
+      const signature = getSignatureFromTransaction({
+        messageBytes: tx.messageBytes,
+        signatures: { [signer.address]: signatures[0] },
+      });
+      console.log('Initiating SOL lock signature:', signature.toString());
 
       return signature;
     },
