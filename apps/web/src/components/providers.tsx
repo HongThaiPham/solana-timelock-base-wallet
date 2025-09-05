@@ -7,20 +7,13 @@ import toast, { ToastBar, Toaster } from 'react-hot-toast';
 
 import { Environment, ParaProvider } from '@getpara/react-sdk';
 import '@getpara/react-sdk/styles.css';
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5,
-      gcTime: 1000 * 60 * 30,
-    },
-  },
-});
+const queryClient = new QueryClient();
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ParaProvider
         paraClientConfig={{
-          env: Environment.BETA,
+          env: Environment.PRODUCTION,
           apiKey: process.env.NEXT_PUBLIC_PARA_API_KEY || '',
         }}
         config={{

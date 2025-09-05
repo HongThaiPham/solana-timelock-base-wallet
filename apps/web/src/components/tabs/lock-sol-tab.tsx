@@ -70,6 +70,7 @@ const LockSolTab = () => {
   const form = useForm<LockSolFormData>({
     resolver: zodResolver(lockSolSchema),
     defaultValues: {
+      amount: 0.001,
       date: new Date(), // Default to today's date
       time: (() => {
         // Default to current time + 5 minutes to ensure it's in the future
@@ -79,7 +80,7 @@ const LockSolTab = () => {
         });
       })(),
     },
-    mode: 'onChange', // Validate on change to provide immediate feedback
+    mode: 'onBlur', // Validate on change to provide immediate feedback
   });
 
   const onSubmit = async (data: LockSolFormData) => {
@@ -150,7 +151,6 @@ const LockSolTab = () => {
                             step='0.001'
                             className='border-none shadow-none p-0 text-lg font-medium focus-visible:ring-0 focus-visible:ring-offset-0'
                             {...field}
-                            value={field.value || ''}
                             onChange={(e) =>
                               field.onChange(parseFloat(e.target.value) || 0)
                             }

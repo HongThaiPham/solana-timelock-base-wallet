@@ -4,7 +4,7 @@ import { createSolanaRpcApi } from '@solana/rpc-api';
 import { createRpc } from '@solana/rpc-spec';
 
 const DEVNET_RPC_URL =
-  process.env.NEXT_PUBLIC_DEVNET_RPC_URL || 'https://api.devnet.solana.com';
+  process.env.NEXT_PUBLIC_SOLANA_RPC_URL || 'https://api.devnet.solana.com';
 // Create RPC client for @solana/kit usage
 const kitRpc = createSolanaRpc(DEVNET_RPC_URL);
 

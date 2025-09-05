@@ -17,7 +17,7 @@ const useInitSolLock = () => {
   const base58Encoder = getBase58Decoder();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationKey: ['init-sol-lock'],
+    mutationKey: ['init-sol-lock', signer?.address],
     mutationFn: async (params: { amount: bigint; unlockTime: bigint }) => {
       if (!signer) {
         return;
@@ -33,6 +33,7 @@ const useInitSolLock = () => {
             unlockTimestamp: params.unlockTime,
             signer,
           });
+          console.log('InitializeSolLock Instruction:', ix);
 
           const message = pipe(
             createTransactionMessage({ version: 0 }),
@@ -45,7 +46,11 @@ const useInitSolLock = () => {
             (tx) => appendTransactionMessageInstruction(ix, tx)
           );
 
+          console.log('Transaction Message:', message);
+
           const tx = await compileTransaction(message);
+
+          console.log('Compiled Transaction:', tx);
 
           const signatures = await signer.signAndSendTransactions([tx]);
 
